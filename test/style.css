@@ -1,0 +1,43 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+    padding: 20px;
+}
+
+h1 {
+    font-weight: 600;
+}
+
+.box-shadow {
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+#ganttChart {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.gantt-block {
+    width: 150px;
+    /* Fixed width */
+    height: 70px;
+    /* Fixed height */
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    position: relative;
+    margin: 5px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.gantt-block span {
+    font-size: 0.8rem;
+}
