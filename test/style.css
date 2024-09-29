@@ -1,12 +1,12 @@
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #f8f9fa;
+    background: url(img/scattered-forcefields.svg);
     padding: 20px;
     transition: background-color 0.3s, color 0.3s;
 }
 
 body.dark-mode {
-    background-color: #121212;
+    background: url(img/scattered-forcefields-dark.svg);
     color: #ffffff;
 }
 
@@ -219,3 +219,4 @@ body.dark-mode .gantt-block {
     background-color: #007bff;
     color: #ffffff;
 }
+

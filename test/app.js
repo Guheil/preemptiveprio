@@ -96,18 +96,23 @@ function calculateScheduling() {
 
     setTimeout(() => {
         processes = [];
+        let totalBurstTime = 0; // Initialize total burst time
 
         for (let i = 0; i < numProcesses; i++) {
+            let burstTime = parseInt(document.getElementById(`burstTime${i}`).value);
+
             processes.push({
                 id: i + 1,
                 arrivalTime: parseInt(document.getElementById(`arrivalTime${i}`).value),
-                burstTime: parseInt(document.getElementById(`burstTime${i}`).value),
+                burstTime: burstTime,
                 priority: parseInt(document.getElementById(`priority${i}`).value),
-                remainingTime: parseInt(document.getElementById(`burstTime${i}`).value),
+                remainingTime: burstTime,
                 completionTime: 0,
                 waitingTime: 0,
                 turnaroundTime: 0
             });
+
+            totalBurstTime += burstTime; 
         }
 
         if (priorityOrder === 'low') {
@@ -183,7 +188,8 @@ function calculateScheduling() {
         document.getElementById('totalWT').innerText = totalWT;
         document.getElementById('avgWT').innerText = avgWT;
         document.getElementById('cpuUtilization').innerText = `${((time - processes[0].arrivalTime) / time * 100).toFixed(2)}%`;
-        document.getElementById('throughput').innerText = `${(numProcesses / time).toFixed(2)} processes/unit time`;
+        document.getElementById('throughput').innerText = `${((numProcesses / totalBurstTime) * 100).toFixed(2)} processes/unit time`;
+        
         loaderModal.hide();
     }, 1000); 
 }
