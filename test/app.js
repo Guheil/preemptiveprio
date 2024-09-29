@@ -5,8 +5,8 @@ function generateTable() {
     let processTable = document.getElementById('processTable');
     let tbody = document.getElementById('processInputs');
 
-    tbody.innerHTML = ''; // Clear previous rows
-    processTable.style.display = 'table'; // Show the table
+    tbody.innerHTML = ''; 
+    processTable.style.display = 'table'; 
 
     for (let i = 0; i < numProcesses; i++) {
         let row = `<tr>
@@ -18,8 +18,6 @@ function generateTable() {
         tbody.innerHTML += row;
     }
 }
-
-// Function to display the error modal
 function showErrorModal(message) {
     document.getElementById('errorMessage').innerText = message;
     let errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
@@ -30,28 +28,24 @@ function highlightError(inputId) {
     const inputField = document.getElementById(inputId);
     inputField.classList.add('is-invalid');
 }
-
-// Function to reset input field highlight
 function resetHighlights() {
     const inputs = document.querySelectorAll('.form-control');
     inputs.forEach(input => input.classList.remove('is-invalid'));
 }
 
 function validateForm(numProcesses) {
-    resetHighlights(); // Reset highlights before validation
+    resetHighlights(); 
 
     for (let i = 0; i < numProcesses; i++) {
         let arrivalTime = document.getElementById(`arrivalTime${i}`).value;
         let burstTime = document.getElementById(`burstTime${i}`).value;
         let priority = document.getElementById(`priority${i}`).value;
 
-        // Check for empty fields
         if (!arrivalTime || !burstTime || !priority) {
             showErrorModal("All fields must be filled.");
             return false;
         }
 
-        // Validate for negative values and special characters
         if (arrivalTime < 0 || burstTime < 0 || priority < 0 || /[^0-9]/.test(arrivalTime) || /[^0-9]/.test(burstTime) || /[^0-9]/.test(priority)) {
             showErrorModal("Negative values and special characters are not allowed.");
             if (arrivalTime < 0 || /[^0-9]/.test(arrivalTime)) {
@@ -66,7 +60,6 @@ function validateForm(numProcesses) {
             return false;
         }
 
-        // Check for leading zeros in multi-digit numbers
         if ((arrivalTime.length > 1 && arrivalTime.startsWith('0'))) {
             showErrorModal("Leading zeros are not allowed for multi-digit arrival times.");
             highlightError(`arrivalTime${i}`);
@@ -77,8 +70,6 @@ function validateForm(numProcesses) {
             highlightError(`burstTime${i}`);
             return false;
         }
-
-        // Validate priority range
         if (priority < 1 || priority > 5) {
             showErrorModal(`Priority for P${i + 1} must be between 1 and 5.`);
             highlightError(`priority${i}`);
@@ -91,14 +82,10 @@ function validateForm(numProcesses) {
 function calculateScheduling() {
     let numProcesses = document.getElementById('numProcesses').value;
     let priorityOrder = document.getElementById('priorityOrder').value;
-
-    // Show loader before calculation starts
     document.getElementById('loader').style.display = 'block';
-    document.getElementById('results').style.display = 'none'; // Hide results during calculation
-
-    // Validate form before calculation
+    document.getElementById('results').style.display = 'none'; 
     if (!validateForm(numProcesses)) {
-        document.getElementById('loader').style.display = 'none'; // Hide loader if validation fails
+        document.getElementById('loader').style.display = 'none'; 
         return;
     }
 
@@ -117,10 +104,8 @@ function calculateScheduling() {
                 turnaroundTime: 0
             });
         }
-
-        // Adjust priority order
         if (priorityOrder === 'low') {
-            processes.forEach(p => p.priority = 6 - p.priority); // Reverse priority if 1 is highest
+            processes.forEach(p => p.priority = 6 - p.priority); 
         }
 
         let time = 0;
@@ -165,7 +150,6 @@ function calculateScheduling() {
             ganttDetails[ganttDetails.length - 1].endTime = time;
         }
 
-        // Display Gantt Chart
         let ganttHTML = '';
         ganttDetails.forEach(g => {
             ganttHTML += `<div class="gantt-block">
@@ -177,7 +161,6 @@ function calculateScheduling() {
         document.getElementById('ganttChart').innerHTML = ganttHTML;
         document.getElementById('results').style.display = 'block';
 
-        // Calculating and Displaying Results
         let totalTAT = 0;
         let totalWT = 0;
 
@@ -196,7 +179,6 @@ function calculateScheduling() {
         document.getElementById('cpuUtilization').innerText = `${((time - processes[0].arrivalTime) / time * 100).toFixed(2)}%`;
         document.getElementById('throughput').innerText = `${(numProcesses / time).toFixed(2)} processes/unit time`;
 
-        // Hide loader after calculation is complete
         document.getElementById('loader').style.display = 'none';
-    }, 1000); // Simulate some delay
+    }, 1000); 
 }
