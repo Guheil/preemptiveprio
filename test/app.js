@@ -18,6 +18,7 @@ function generateTable() {
         tbody.innerHTML += row;
     }
 }
+
 function showErrorModal(message) {
     document.getElementById('errorMessage').innerText = message;
     let errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
@@ -28,6 +29,7 @@ function highlightError(inputId) {
     const inputField = document.getElementById(inputId);
     inputField.classList.add('is-invalid');
 }
+
 function resetHighlights() {
     const inputs = document.querySelectorAll('.form-control');
     inputs.forEach(input => input.classList.remove('is-invalid'));
@@ -70,6 +72,7 @@ function validateForm(numProcesses) {
             highlightError(`burstTime${i}`);
             return false;
         }
+
         if (priority < 1 || priority > 5) {
             showErrorModal(`Priority for P${i + 1} must be between 1 and 5.`);
             highlightError(`priority${i}`);
@@ -82,12 +85,14 @@ function validateForm(numProcesses) {
 function calculateScheduling() {
     let numProcesses = document.getElementById('numProcesses').value;
     let priorityOrder = document.getElementById('priorityOrder').value;
-    document.getElementById('loader').style.display = 'block';
-    document.getElementById('results').style.display = 'none'; 
+
     if (!validateForm(numProcesses)) {
-        document.getElementById('loader').style.display = 'none'; 
-        return;
+        return; 
     }
+
+    let loaderModal = new bootstrap.Modal(document.getElementById('loaderModal'));
+    loaderModal.show();
+    document.getElementById('results').style.display = 'none'; 
 
     setTimeout(() => {
         processes = [];
@@ -104,6 +109,7 @@ function calculateScheduling() {
                 turnaroundTime: 0
             });
         }
+
         if (priorityOrder === 'low') {
             processes.forEach(p => p.priority = 6 - p.priority); 
         }
@@ -178,7 +184,8 @@ function calculateScheduling() {
         document.getElementById('avgWT').innerText = avgWT;
         document.getElementById('cpuUtilization').innerText = `${((time - processes[0].arrivalTime) / time * 100).toFixed(2)}%`;
         document.getElementById('throughput').innerText = `${(numProcesses / time).toFixed(2)} processes/unit time`;
-
-        document.getElementById('loader').style.display = 'none';
+        loaderModal.hide();
     }, 1000); 
 }
+
+
