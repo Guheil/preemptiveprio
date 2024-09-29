@@ -2,6 +2,12 @@ let processes = [];
 
 function generateTable() {
     let numProcesses = document.getElementById('numProcesses').value;
+    
+    if (!numProcesses || numProcesses <= 0) {
+        showErrorModal("You need to input the number of processes first.");
+        return;
+    }
+
     let processTable = document.getElementById('processTable');
     let tbody = document.getElementById('processInputs');
 
@@ -84,7 +90,11 @@ function validateForm(numProcesses) {
 
 function calculateScheduling() {
     let numProcesses = document.getElementById('numProcesses').value;
-    let priorityOrder = document.getElementById('priorityOrder').value;
+
+    if (!numProcesses || numProcesses <= 0) {
+        showErrorModal("You need to generate the process table first.");
+        return;
+    }
 
     if (!validateForm(numProcesses)) {
         return; 
@@ -96,7 +106,7 @@ function calculateScheduling() {
 
     setTimeout(() => {
         processes = [];
-        let totalBurstTime = 0; // Initialize total burst time
+        let totalBurstTime = 0;
 
         for (let i = 0; i < numProcesses; i++) {
             let burstTime = parseInt(document.getElementById(`burstTime${i}`).value);
@@ -115,10 +125,7 @@ function calculateScheduling() {
             totalBurstTime += burstTime; 
         }
 
-        if (priorityOrder === 'low') {
-            processes.forEach(p => p.priority = 6 - p.priority); 
-        }
-
+        // Simulation logic and Gantt chart generation
         let time = 0;
         let completed = 0;
         let ganttDetails = [];
@@ -161,6 +168,7 @@ function calculateScheduling() {
             ganttDetails[ganttDetails.length - 1].endTime = time;
         }
 
+        // Gantt chart display logic
         let ganttHTML = '';
         ganttDetails.forEach(g => {
             ganttHTML += `<div class="gantt-block">
@@ -188,10 +196,8 @@ function calculateScheduling() {
         document.getElementById('totalWT').innerText = totalWT;
         document.getElementById('avgWT').innerText = avgWT;
         document.getElementById('cpuUtilization').innerText = `${((time - processes[0].arrivalTime) / time * 100).toFixed(2)}%`;
-        document.getElementById('throughput').innerText = `${((numProcesses / totalBurstTime) * 100).toFixed(2)} processes/unit time`;
+        document.getElementById('throughput').innerText = `${((numProcesses / totalBurstTime) * 100).toFixed(2)}`;
         
         loaderModal.hide();
     }, 1000); 
 }
-
-
