@@ -97,12 +97,12 @@ function calculateScheduling() {
     }
 
     if (!validateForm(numProcesses)) {
-        return; 
+        return;
     }
 
     let loaderModal = new bootstrap.Modal(document.getElementById('loaderModal'));
     loaderModal.show();
-    document.getElementById('results').style.display = 'none'; 
+    document.getElementById('results').style.display = 'none';
 
     setTimeout(() => {
         processes = [];
@@ -122,10 +122,9 @@ function calculateScheduling() {
                 turnaroundTime: 0
             });
 
-            totalBurstTime += burstTime; 
+            totalBurstTime += burstTime;
         }
 
-        // Simulation logic and Gantt chart generation
         let time = 0;
         let completed = 0;
         let ganttDetails = [];
@@ -160,6 +159,17 @@ function calculateScheduling() {
                     ganttDetails[ganttDetails.length - 1].endTime = time;
                 }
             } else {
+                if (ganttDetails.length === 0 || ganttDetails[ganttDetails.length - 1].processId !== 'idle') {
+                    if (ganttDetails.length > 0 && !ganttDetails[ganttDetails.length - 1].endTime) {
+                        ganttDetails[ganttDetails.length - 1].endTime = time;
+                    }
+
+                    ganttDetails.push({
+                        processId: 'idle',  
+                        startTime: time,
+                        endTime: null
+                    });
+                }
                 time++;
             }
         }
@@ -168,11 +178,11 @@ function calculateScheduling() {
             ganttDetails[ganttDetails.length - 1].endTime = time;
         }
 
-        // Gantt chart display logic
         let ganttHTML = '';
         ganttDetails.forEach(g => {
-            ganttHTML += `<div class="gantt-block">
-                P${g.processId} <br>
+            let colorClass = g.processId === 'idle' ? 'gantt-idle' : 'gantt-process';
+            ganttHTML += `<div class="gantt-block ${colorClass}">
+                ${g.processId === 'idle' ? 'Idle' : 'P' + g.processId} <br>
                 <span>(${g.startTime} - ${g.endTime})</span>
             </div>`;
         });
@@ -197,7 +207,8 @@ function calculateScheduling() {
         document.getElementById('avgWT').innerText = avgWT;
         document.getElementById('cpuUtilization').innerText = `${((time - processes[0].arrivalTime) / time * 100).toFixed(2)}%`;
         document.getElementById('throughput').innerText = `${((numProcesses / totalBurstTime) * 100).toFixed(2)}`;
-        
+
         loaderModal.hide();
-    }, 1000); 
+    }, 1000);
 }
+
