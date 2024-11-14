@@ -61,10 +61,8 @@ body.dark-mode .box-shadow {
 
 #ganttChart {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-wrap: nowrap;
 }
-
 
 .gantt-block {
     width: 150px;
@@ -72,12 +70,8 @@ body.dark-mode .box-shadow {
     background-color: #007bff;
     color: white;
     border-radius: 5px;
-    position: relative;
     margin: 5px;
     text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     font-size: 0.9rem;
 }
 
@@ -103,7 +97,6 @@ body.dark-mode .gantt-idle {
     width: 3rem;
     height: 3rem;
 }
-
 
 .switch {
     font-size: 17px;
@@ -227,4 +220,78 @@ body.dark-mode .gantt-idle {
 body.dark-mode .gantt-block {
     background-color: #007bff;
     color: #ffffff;
+}
+
+.gantt-scroll-container {
+    overflow-x: auto;
+    white-space: nowrap;
+    border: 1px solid #ced4da;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+/* Add these styles to style.css */
+.tutorial-step {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-left: 4px solid #007bff;
+    background-color: rgba(0, 123, 255, 0.1);
+    border-radius: 0 5px 5px 0;
+}
+
+body.dark-mode .tutorial-step {
+    background-color: rgba(0, 123, 255, 0.2);
+}
+
+.tutorial-step h5 {
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+body.dark-mode .tutorial-step h5 {
+    color: #73C0FC;
+}
+
+.tutorial-step ul {
+    margin-bottom: 0;
+    padding-left: 20px;
+}
+
+.tutorial-step li {
+    margin-bottom: 5px;
+}
+
+#tutorialContent {
+    display: none;
+    margin-top: 20px;
+}
+
+.show-tutorial-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.show-tutorial-btn:hover {
+    background-color: #218838;
+}
+
+body.dark-mode .show-tutorial-btn {
+    background-color: #2ea043;
+}
+
+body.dark-mode .show-tutorial-btn:hover {
+    background-color: #238636;
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+body.dark-mode .text-success {
+    color: #2ea043 !important;
 }

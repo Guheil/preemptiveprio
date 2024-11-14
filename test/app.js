@@ -2,6 +2,7 @@ let processes = [];
 
 function generateTable() {
     let numProcesses = document.getElementById('numProcesses').value;
+    let priorityOrder = document.getElementById('priorityOrder').value;
     
     if (!numProcesses || numProcesses <= 0) {
         showErrorModal("You need to input the number of processes first.");
@@ -128,11 +129,18 @@ function calculateScheduling() {
         let time = 0;
         let completed = 0;
         let ganttDetails = [];
+        const priorityOrder = document.getElementById('priorityOrder').value;
 
         while (completed < numProcesses) {
             let executingProcess = processes
                 .filter(p => p.arrivalTime <= time && p.remainingTime > 0)
-                .sort((a, b) => a.priority - b.priority || a.arrivalTime - b.arrivalTime)[0];
+                .sort((a, b) => {
+                    if (priorityOrder === 'high') {
+                        return a.priority - b.priority;
+                    } else {
+                        return b.priority - a.priority;
+                    }
+                })[0];
 
             if (executingProcess) {
                 if (ganttDetails.length === 0 || ganttDetails[ganttDetails.length - 1].processId !== executingProcess.id) {
@@ -212,3 +220,227 @@ function calculateScheduling() {
     }, 1000);
 }
 
+function generateTutorial() {
+    const numProcesses = document.getElementById('numProcesses').value;
+    const tutorialContent = document.getElementById('tutorialContent');
+    
+    tutorialContent.innerHTML = '';
+
+    if (!numProcesses || numProcesses <= 0) {
+        showErrorModal("You need to generate the process table first.");
+        return;
+    }
+
+    // Gather process information
+    let processDetails = [];
+    for (let i = 0; i < numProcesses; i++) {
+        processDetails.push({
+            id: i + 1,
+            arrivalTime: parseInt(document.getElementById(`arrivalTime${i}`).value),
+            burstTime: parseInt(document.getElementById(`burstTime${i}`).value),
+            priority: parseInt(document.getElementById(`priority${i}`).value),
+            remainingTime: parseInt(document.getElementById(`burstTime${i}`).value)
+        });
+    }
+
+    // Sort processes by arrival time for initial explanation
+    processDetails.sort((a, b) => a.arrivalTime - b.arrivalTime);
+
+    // Get the selected priority order
+    const priorityOrder = document.getElementById('priorityOrder').value;
+    const priorityOrderText = priorityOrder === 'high' ? '1 (High) - 5 (Low)' : '5 (High) - 1 (Low)';
+
+    // Create initial explanation
+    let tutorialHTML = `
+        <div class="tutorial-section mb-4">
+            <h4 class="mb-3">Initial Process Analysis</h4>
+            <p>We have ${numProcesses} processes to schedule using Priority Scheduling (Preemptive). Here's how they arrive:</p>
+            <div class="process-timeline mb-3">
+                ${processDetails.map(p => `
+                    <div class="timeline-entry">
+                        <strong>Time ${p.arrivalTime}</strong>: P${p.id} arrives (Priority: ${p.priority})
+                    </div>
+                `).join('')}
+            </div>
+            <p>The selected priority order is: ${priorityOrderText}</p>
+        </div>
+    `;
+
+    // Simulate the scheduling process for explanation
+    let time = 0;
+    let completed = 0;
+    let timelineEvents = [];
+    let currentProcess = null;
+
+    while (completed < numProcesses) {
+        // Find eligible processes at current time
+        let eligibleProcesses = processDetails
+            .filter(p => p.arrivalTime <= time && p.remainingTime > 0)
+            .sort((a, b) => {
+                // Adjust sorting based on selected priority order
+                return priorityOrder === 'high' ? a.priority - b.priority : b.priority - a.priority;
+            });
+
+        if (eligibleProcesses.length > 0) {
+            let selectedProcess = eligibleProcesses[0];
+            
+            if (currentProcess !== selectedProcess.id) {
+                timelineEvents.push({
+                    time: time,
+                    type: 'switch',
+                    process: selectedProcess,
+                    readyQueue: eligibleProcesses.slice(1).map(p => `P${p.id}`)
+                });
+                currentProcess = selectedProcess.id;
+            }
+
+            selectedProcess.remainingTime--;
+            
+            if (selectedProcess.remainingTime === 0) {
+                timelineEvents.push({
+                    time: time + 1,
+                    type: 'complete',
+                    process: selectedProcess
+                });
+                completed++;
+                currentProcess = null;
+            }
+        } else {
+            // Handle idle time
+            timelineEvents.push({
+                time: time,
+                type: 'idle',
+                readyQueue: [],
+                idleReason: 'No processes are ready to execute.'
+            });
+            currentProcess = null;
+        }
+        time++;
+    }
+
+    // Generate detailed explanation of events
+    tutorialHTML += `
+        <div class="tutorial-section mb-4">
+            <h4 class="mb-3">Scheduling Process Explanation</h4>
+            <p>The scheduling process is based on the selected priority order: ${priorityOrderText}. This means:</p>
+            <ul>
+                <li>If the priority order is set to "1 (High) - 5 (Low)", the process with the lowest priority number (highest priority) will be executed first.</li>
+                <li>If the priority order is set to "5 (High) - 1 (Low)", the process with the highest priority number (lowest priority) will be executed first.</li>
+            </ul>
+            ${timelineEvents.map(event => {
+                let explanation = '';
+                switch (event.type) {
+                    case 'switch':
+                        explanation = `
+                            <div class="event-entry mb-2">
+                                <strong>At time ${event.time}:</strong>
+                                <ul>
+                                    <li>P${event.process.id} is selected for execution (Priority: ${event.process.priority})</li>
+                                    ${event.readyQueue.length > 0 ? 
+                                        `<li>Ready Queue: ${event.readyQueue.join(', ')}</li>` : 
+                                        '<li>No other processes in ready queue</li>'}
+                                    <li>Reason: Highest priority among ready processes</li>
+                                </ul>
+                            </div>
+                        `;
+                        break;
+                    case 'complete':
+                        explanation = `
+                            <div class="event-entry mb-2">
+                                <strong>At time ${event.time}:</strong>
+                                <ul>
+                                    <li>P${event.process.id} has completed execution</li>
+                                    <li>Total time taken: ${event.time - event.process.arrivalTime} units</li>
+                                </ul>
+                            </div>
+                        `;
+                        break;
+                    case 'idle':
+                        explanation = `
+                            <div class="event-entry idle-entry mb-2">
+                                <strong>At time ${event.time}:</strong>
+                                <ul>
+                                    <li>CPU is idle</li>
+                                    <li>Reason: ${event.idleReason}</li>
+                                </ul>
+                            </div>
+                        `;
+                        break;
+                }
+                return explanation;
+            }).join('')}
+        </div>
+    `;
+
+    // Add custom styling for tutorial elements
+    const style = document.createElement('style');
+    style.textContent = `
+        .tutorial-section {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .event-entry {
+            border-left: 3px solid #007bff;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+        }
+        .idle-entry {
+            border-left: 3px solid #dc3545;
+            background-color: #fff3f3;
+        }
+        .timeline-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+        .process-timeline {
+            border-left: 2px solid #6c757d;
+            padding-left: 1rem;
+            margin-left: 1rem;
+        }
+
+        body.dark-mode {
+            background-color: #121212;
+            color: #f8f9fa;  
+        }
+
+        body.dark-mode .tutorial-section {
+            background-color: #2e2e2e; 
+            color: #f8f9fa; 
+        }
+
+        body.dark-mode .event-entry {
+            border-left: 3px solid #007bff;
+            background-color: #2c2f37; 
+            color: #f8f9fa; /
+        }
+
+        body.dark-mode .idle-entry {
+            border-left: 3px solid #dc3545;
+            background-color: #4f3333; 
+            color: #f8f9fa;  
+        }
+
+        body.dark-mode .timeline-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background-color: #3a3f47; 
+            border-radius: 4px;
+            color: #f8f9fa; 
+        }
+
+        body.dark-mode .process-timeline {
+            border-left: 2px solid #6c757d;
+            padding-left: 1rem;
+            margin-left: 1rem;
+            color: #f8f9fa;  
+        }
+    `;
+    document.head.appendChild(style);
+
+    tutorialContent.innerHTML = tutorialHTML;
+    tutorialContent.style.display = 'block';
+}
